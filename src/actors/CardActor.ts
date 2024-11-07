@@ -25,8 +25,11 @@ export class CardActor extends Actor<CardMessage, CardState> {
 				});
 				break;
 			case "takeDamage":
+				const newHealth = this.getSnapshot().health - message.amount;
+
+				console.log("newHealth", newHealth);
 				this.updateState({
-					health: this.getSnapshot().health - message.amount,
+					health: newHealth,
 				});
 
 				const health = this.getSnapshot().health;

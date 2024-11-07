@@ -46,6 +46,7 @@ eventBus.on("timerExpired", () => {
 		},
 	];
 
+	store.dispatch(decrementTimer());
 	// Dispatch the spawnEnemies action when the timer expires
 	store.dispatch(spawnEnemies({ positions: newEnemies }));
 });
@@ -71,22 +72,30 @@ function render(ctx: CanvasRenderingContext2D) {
 }
 
 // Game loop function
-function gameLoop(ctx: CanvasRenderingContext2D) {
-	// Decrement the timer and update enemy positions
-	store.dispatch(updateEnemyPositions());
+const gameLoop =
+	(ctx: CanvasRenderingContext2D, previousTime: number): FrameRequestCallback =>
+	(timeInMs) => {
+		const state = store.getState();
 
-	// Check if the timer reached 0 and emit `timerExpired`
-	const state = store.getState();
-	if (state.turnTimer === 0) {
-		eventBus.emit("timerExpired", undefined);
-	}
+		// Compute the delta-time against the previous time
+		const deltaTime = timeInMs - previousTime;
+		const secondsPassed = Math.floor(timeInMs / 1000);
 
-	// Render the current state
-	render(ctx);
+		// Decrement the timer and update enemy positions
+		store.dispatch(updateEnemyPositions());
 
-	// Continue the loop
-	requestAnimationFrame(() => gameLoop(ctx));
-}
+		// Check if the timer reached 0 and emit `timerExpired`
+		if (state.turnTimer === 0) {
+			console.log("timer expired");
+			eventBus.emit("timerExpired", undefined);
+		}
+
+		// Render the current state
+		render(ctx);
+
+		// Continue the loop
+		requestAnimationFrame(gameLoop(ctx, timeInMs));
+	};
 
 // Setup canvas and button
 const decrementButton = document.getElementById(
@@ -102,5 +111,6 @@ decrementButton.addEventListener("click", () => {
 });
 
 export const startGame = (ctx: CanvasRenderingContext2D) => {
-	gameLoop(ctx);
+	// Start the first frame request
+	requestAnimationFrame(gameLoop(ctx, 0));
 };

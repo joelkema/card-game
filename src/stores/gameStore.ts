@@ -19,7 +19,7 @@ export const gameSlice = createSlice({
 			}
 		},
 		spawnEnemies(state, action: PayloadAction<{ positions: Enemy[] }>) {
-			state.enemies = [...action.payload.positions];
+			state.enemies = [...state.enemies, ...action.payload.positions];
 		},
 		updateEnemyPositions(state) {
 			state.enemies = state.enemies.map((enemy) => {

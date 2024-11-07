@@ -1,15 +1,14 @@
 import { Actor } from "./Actor";
-import { ActorMessage } from "./ActorMessage";
 
 export class ActorSystem {
-	private actors: Map<string, Actor> = new Map();
+	private actors: Map<string, Actor<any, any>> = new Map();
 
 	static default() {
 		return new ActorSystem();
 	}
 
 	// Create a new actor and register it in the system
-	spawn<T extends Actor<any>>(
+	spawn<T extends Actor<any, any>>(
 		actorClass: new (...args: any[]) => T,
 		id: string,
 		...args: any[]

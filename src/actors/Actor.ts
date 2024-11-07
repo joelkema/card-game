@@ -1,4 +1,3 @@
-import { ActorMessage } from "./ActorMessage";
 import { ActorSystem } from "./ActorSystem";
 
 type Message<T> = T;
@@ -72,10 +71,12 @@ export class Actor<M, S> {
 		this.mailbox = [];
 	}
 
+	// Returns the actor's current state
 	public getSnapshot(): S {
 		return this.state;
 	}
 
+	// Updates the actor's state, merging the new state with the old
 	protected updateState(newState: Partial<S>): void {
 		this.state = { ...this.state, ...newState };
 	}

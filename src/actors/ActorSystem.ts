@@ -1,38 +1,45 @@
 import { Actor } from "./Actor";
+import {
+	Dispatcher,
+	MainThreadDispatcher,
+	ThreadPoolDispatcher,
+} from "./Dispatcher";
 
 export class ActorSystem {
-	private actors: Map<string, Actor<any, any>> = new Map();
+	private dispatcher: Dispatcher;
+
+	constructor(dispatcher: Dispatcher) {
+		this.dispatcher = dispatcher;
+	}
 
 	static default() {
-		return new ActorSystem();
+		return new ActorSystem(new MainThreadDispatcher());
+	}
+
+	static withWorker() {
+		return new ActorSystem(new ThreadPoolDispatcher());
 	}
 
 	// Create a new actor and register it in the system
-	spawn<T extends Actor<any, any>>(
+	actorOf<T extends Actor<any, any>>(
 		actorClass: new (...args: any[]) => T,
 		id: string,
 		...args: any[]
 	): T {
-		const actor = new actorClass(id, this, ...args);
-		this.actors.set(id, actor);
-		return actor;
+		return this.dispatcher.registerActor(actorClass, id, ...args);
 	}
 	// Dispatches a message to a specific actor by ID
 	sendMessage<T>(actorId: string, message: T) {
-		const actor = this.actors.get(actorId);
-		if (actor) {
-			actor.receive(message);
-		} else {
-			console.warn(`Actor with ID ${actorId} does not exist`);
-		}
+		this.dispatcher.dispatch(actorId, message);
 	}
 
 	// Stops an actor and removes it from the system
 	stop(actorId: string) {
-		const actor = this.actors.get(actorId);
-		if (actor) {
-			actor.stop();
-			this.actors.delete(actorId);
-		}
+		this.dispatcher.unregisterActor(actorId);
+	}
+
+	// Retrieves an actor by ID
+	getActor(actorId: string) {
+		return this.dispatcher.getActorById(actorId);
 	}
 }

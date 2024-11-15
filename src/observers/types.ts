@@ -1,4 +1,4 @@
-import { Observable } from "./Observers";
+import { Observable } from "./Observable";
 
 /**
  * A function type interface that describes a function that accepts one parameter `T`
@@ -12,7 +12,7 @@ export interface UnaryFunction<T, R> {
 }
 
 export interface OperatorFunction<T, R>
-	extends UnaryFunction<Observable<T>, Observable<R>> { }
+	extends UnaryFunction<Observable<T>, Observable<R>> {}
 
 export interface Observer<T> {
 	next: (value: T) => void;

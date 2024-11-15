@@ -51,7 +51,25 @@ function createSafeObserver<T>(
 	);
 }
 
-// Observable.ts (updated with create and of methods)
+/**
+ * An observable is a blueprint for a stream. It describes a set of streams, also how they are connected with operations.
+ *
+ * @template T the type of the values emitted by the observable.
+ * @class
+ * @implements {Subscribable}
+ * @example
+ * ```ts
+ * import { Observable } from "./observable";
+ *
+ * const observable = new Observable<number>((subscriber) => {
+ *  subscriber.next(1);
+ *  subscriber.next(2);
+ *  subscriber.next(3);
+ *  subscriber.complete();
+ *  subscriber.next(4); // This will not be emitted because the observable has already completed.
+ *  subscriber.error(new Error("This will not be emitted either"));
+ * });
+ */
 export class Observable<T> implements Subscribable<T> {
 	private _subscribe: (subscriber: Subscriber<T>) => void;
 
@@ -196,8 +214,10 @@ function pipeReducer(prev: any, fn: UnaryFunction<any, any>) {
 	return fn(prev);
 }
 
-// Subscription.ts
-class Subscription {
+/**
+ * A subscription represents the execution of an Observable, is primarily useful for cancelling the execution.
+ */
+export class Subscription {
 	/**
 	 * A flag to indicate whether this Subscription has already been unsubscribed.
 	 */
@@ -208,8 +228,28 @@ class Subscription {
 	}
 }
 
-// Subscriber.ts
-class Subscriber<T> extends Subscription implements Observer<T> {
+/**
+ * A subscriber is an object that receives notifications from an observable. It is an object with three methods: next, error, complete.
+ *
+ * @template T the type of the values emitted by the observable.
+ * @class
+ * @extends {Subscription}
+ * @implements {Observer}
+ * @example
+ * ```ts
+ * import { Subscriber } from "./observable";
+ *
+ * const subscriber = new Subscriber({
+ * 	next: (value) => console.log(value),
+ * 	error: (err) => console.error(err),
+ * 	complete: () => console.log("done"),
+ * });
+ *
+ * subscriber.next(1); // 1
+ * subscriber.complete(); // done
+ * subscriber.next(2); // This will not be emitted because the subscriber has already completed.
+ */
+export class Subscriber<T> extends Subscription implements Observer<T> {
 	/** @internal */
 	protected destination: Observer<T>;
 
